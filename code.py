@@ -153,9 +153,9 @@ def squash_unicode(text):
     text = text.replace(u'\u2013','-') # "EN DASH".  just use a fucking dash already.  sheesh.
     text = text.replace(u'\u02C7','?') # caron.  this will show up as hex cb87.
     text = text.replace(u'\u00e8','e') # 'LATIN SMALL LETTER E WITH GRAVE'
-    text = text.replace(u'\u00e9','e') # 'LATIN SMALL LETTER E WITH ACUTE' (U+00E9)
-    text = text.replace(u'\u00e1','a') # 'LATIN SMALL LETTER A WITH ACUTE' (U+00E1)
-    text = text.replace(u'\u00f3','o') # 'LATIN SMALL LETTER O WITH ACUTE' (U+00F3)
+    text = text.replace(u'\u00e9','e') # 'LATIN SMALL LETTER E WITH ACUTE' (U+00E9)"
+    text = text.replace(u'\u00e1','a') # 'LATIN SMALL LETTER A WITH ACUTE' (U+00E1)"
+    text = text.replace(u'\u00f3','o') # 'LATIN SMALL LETTER O WITH ACUTE' (U+00F3)"
     text = text.replace(u'\u201c','"') # 'LEFT DOUBLE QUOTATION MARK' (U+201C)
     text = text.replace(u'\u201d','"') # 'RIGHT DOUBLE QUOTATION MARK' (U+201D)
 
@@ -164,7 +164,7 @@ def squash_unicode(text):
 
 
 import creoleparser
-my_dialect=creoleparser.dialects.Creole10(wiki_links_base_url=(urlroot + '/page/'))
+my_dialect = creoleparser.dialects.creole10_base(wiki_links_base_url=(urlroot + '/page/'))
 my_creoleparser = creoleparser.core.Parser(dialect=my_dialect)
 
 
