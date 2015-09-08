@@ -1,0 +1,19 @@
+$def with (urlroot, name, content)
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="$(urlroot)/static/pre.css" />
+<title>$name</title>
+</head>
+<body>
+<h1><a href="$(urlroot)/">$wikititle</a> -&gt; $name</h1>
+$:content
+
+<hr>
+<p>
+[<a href="$(urlroot)/editor/$name">edit</a>] [<a href="$(urlroot)/rawpage/$name">raw</a>] [<a href="$(urlroot)/archive/page/$name">archive</a>]<br>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>

@@ -1,0 +1,17 @@
+$def with (urlroot, uploads)
+<html><head><title>all uploads</title></head>
+<body>
+<h1><a href="$(urlroot)/">$wikititle</a> -&gt; all uploads</h1>
+<ul>
+$for fname in uploads:
+    <li><a href="$(urlroot)/upload/$fname">$fname</a></li>
+</ul>
+
+<hr>
+<p>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>

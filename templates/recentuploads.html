@@ -1,0 +1,17 @@
+$def with (urlroot, upload_tuples)
+<html><head><title>recent uploads</title></head>
+<body>
+<h1><a href="$(urlroot)/">$wikititle</a> -&gt; recent uploads</h1>
+<ul>
+$for (mtime, fname) in upload_tuples:
+    <li><a href="$(urlroot)/upload/$fname">$fname</a> ($mtime)</li>
+</ul>
+
+<hr>
+<p>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>

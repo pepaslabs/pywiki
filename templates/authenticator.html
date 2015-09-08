@@ -1,0 +1,22 @@
+$def with (urlroot)
+<!-- originally taken from http://webpy.org/cookbook/userauthpgsql -->
+<html><head><title>login</title></head>
+<body onLoad="document.form.user.focus()">
+<form action="$(urlroot)/authenticator" method="POST" name="form">
+    <table id="login">
+        <tr>
+            <td>User: </td>
+            <td><input type="text" name="user"></td>
+        </tr>
+        <tr>
+            <td>Password: </td>
+            <td><input type="password" name="passwd"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="login"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

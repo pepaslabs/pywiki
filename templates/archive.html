@@ -1,0 +1,14 @@
+$def with (urlroot, name, revision, content)
+<html><head><title>$(name) (revision $(revision))</title></head>
+<body>
+<h1><a href="$(urlroot)/">$(wikititle)</a> -&gt; <a href="$(urlroot)/page/$(name)">$(name)</a> (revision $(revision))</h1>
+$:content
+<hr>
+<p>
+[<a href="$(urlroot)/archive/rawpage/$name/$(revision)">raw</a>]<br>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>

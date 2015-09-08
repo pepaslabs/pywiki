@@ -1,0 +1,17 @@
+$def with (urlroot, name, revision_tuples)
+<html><head><title>revisions of $name</title></head>
+<body>
+<h1><a href="$(urlroot)/">$wikititle</a> -&gt; revisions of $name:</h1>
+<ul>
+$for (revision, mtime) in revision_tuples:
+    <li><a href="$(urlroot)/archive/page/$name/$revision">$revision</a> ($mtime)</li>
+</ul>
+
+<hr>
+<p>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>

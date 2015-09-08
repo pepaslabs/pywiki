@@ -1,0 +1,17 @@
+$def with (urlroot, page_tuples)
+<html><head><title>recent pages</title></head>
+<body>
+<h1><a href="$(urlroot)/">$wikititle</a> -&gt; recent pages</h1>
+<ul>
+$for (mtime, fname) in page_tuples:
+    <li><a href="$(urlroot)/page/$fname">$fname</a> ($mtime)</li>
+</ul>
+
+<hr>
+<p>
+<form action="$(urlroot)/deauthenticator" method="POST">
+<input type="submit" value="logout">
+</form>
+</p>
+</body>
+</html>
