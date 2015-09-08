@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
+# pywiki: a simple (private) wiki implemented in web.py
 # copyright 2010 by jason pepas (jasonpepas@gmail.com)
-# released under the terms of the GNU Public License version 2
+# see https://github.com/pepaslabs/pywiki
 
 import web
 import sys
