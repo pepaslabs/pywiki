@@ -356,7 +356,7 @@ class Upload:
     def GET(self, name):
         if session.logged_in == False: raise web.seeother('/authenticator')
         if os.path.isfile(script_dir + ('/uploads/%s' % name)):
-            web.header('Content-type', mimetypes.guess_type(name))
+            web.header('Content-type', mimetypes.guess_type(name)[0])
             return open(script_dir + ('/uploads/%s' % name)).read()
         else:
             raise web.notfound()
