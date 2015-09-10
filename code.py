@@ -272,7 +272,7 @@ class RecentPages:
                  if os.path.isfile(script_dir + ('/pages/%s' % fname))]
         revision_mtimes = [os.stat(script_dir + ('/pages/%s' % fname)).st_mtime \
                            for fname in pages]
-        page_tuples = sorted(zip(revision_mtimes, pages), reverse=True)[:20]
+        page_tuples = sorted(zip(revision_mtimes, pages), reverse=True)[:50]
         page_tuples = [(time.asctime(time.localtime(mtime)), fname) \
                        for (mtime,fname) in page_tuples]
         return renderer.recentpages(urlroot, page_tuples)
