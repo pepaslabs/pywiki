@@ -206,7 +206,9 @@ class Page:
         if session.logged_in == False: raise web.seeother('/authenticator')
         if os.path.isfile(script_dir + '/pages/%s' % name):
             content = my_creoleparser(open(script_dir + '/pages/%s' % name).read())
-            return renderer.page(urlroot, name, content)
+            mtime = os.stat(script_dir + ('/pages/%s' % name)).st_mtime
+            mtime = time.asctime(time.localtime(mtime))
+            return renderer.page(urlroot, name, content, mtime)
         else:
             raise web.notfound(renderer.page404(urlroot, name))
 
@@ -272,7 +274,7 @@ class RecentPages:
                  if os.path.isfile(script_dir + ('/pages/%s' % fname))]
         revision_mtimes = [os.stat(script_dir + ('/pages/%s' % fname)).st_mtime \
                            for fname in pages]
-        page_tuples = sorted(zip(revision_mtimes, pages), reverse=True)[:50]
+        page_tuples = sorted(zip(revision_mtimes, pages), reverse=True)
         page_tuples = [(time.asctime(time.localtime(mtime)), fname) \
                        for (mtime,fname) in page_tuples]
         return renderer.recentpages(urlroot, page_tuples)
