@@ -14,11 +14,11 @@ import string
 import time
 import cgi
 import re
-import pam
 import mimetypes
 mimetypes.init()
 import commands
 import gzip
+import subprocess
 
 
 (script_dir, script_file) = os.path.split(os.path.realpath(__file__))
@@ -38,7 +38,7 @@ valid_pagename_pattern = re.compile('^%s$' % valid_pagename_regex)
 
 urls = (
     '/', 'Index',
-    '/authenticator', 'PamAuthenticator',
+    '/authenticator', 'PamAuthenticator2',
     '/otpauthenticator', 'OtpAuthenticator',
     '/deauthenticator', 'Deauthenticator',
     '/upload/(%s)' % valid_upload_regex, 'Upload',
@@ -92,19 +92,26 @@ def _grant_access():
     raise web.seeother('/')
 
 
-class PamAuthenticator:
+class PamAuthenticator2:
     def GET(self):
         return renderer.authenticator(urlroot)
 
     def POST(self):
         i = web.input()
         _input_sanity_checks(i)
-        try:
-            assert True == pam.authenticate(i.user, i.passwd)
-        except:
-            _bugout()
-        else:
+
+        # I ran into a strange pam problem which seemed to be due to long-running processes.
+        # breaking the pam code out into its own script as a work-around.
+        # see https://twitter.com/cellularmitosis/status/641382629393043456
+        p = subprocess.Popen(['%s/pam_authenticate.py' % script_dir, i.user], stdin=subprocess.PIPE)
+        p.communicate(i.passwd)
+        exit_status = p.returncode
+
+        if exit_status == 0:
             _grant_access()
+        else:
+            _bugout()
+
 
 
 class OtpAuthenticator:
