@@ -1,9 +1,11 @@
 $def with (urlroot, name)
 <html><head><title>$name not found</title></head>
 <body>
-<p>Page $name does not yet exist - <a href="$(urlroot)/editor/$name">Create</a>
+<p>Page $name does not yet exist - <a href="$(urlroot)/editor/$name">Create</a></p>
+<p>
 <form action="$(urlroot)/deauthenticator" method="POST">
 <input type="submit" value="logout">
 </form>
+</p>
 </body>
 </html>

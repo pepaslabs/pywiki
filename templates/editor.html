@@ -7,7 +7,8 @@ $def with (urlroot, name, textarea_content)
 <br>
 <input type="submit" value="save">
 </form>
-<p><a href="http://www.wikicreole.org/wiki/CheatSheet">Creole Syntax</a>:</p>
+<p>
+<a href="http://www.wikicreole.org/wiki/CheatSheet">Creole Syntax</a>:</p>
 <pre>
 == Large heading ==               Horizontal line:
 === Medium heading ===            ----
@@ -36,8 +37,11 @@ dealing with uploads:
 {{/$(wikititle)/upload/foo.jpg}}
 [[/$(wikititle)/upload/foo.pdf]]
 </pre>
+</p>
+<p>
 <form action="$(urlroot)/deauthenticator" method="POST">
 <input type="submit" value="logout">
 </form>
+</p>
 </body>
 </html>

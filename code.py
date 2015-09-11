@@ -179,7 +179,9 @@ my_creoleparser = creoleparser.core.Parser(dialect=my_dialect)
 class Index:
     def GET(self):
         if session.logged_in == False: raise web.seeother('/authenticator')
-        return renderer.index(urlroot)
+        yyyymmdd = time.strftime('%Y%m%d')
+        journal = 'Journal%s' % yyyymmdd
+        return renderer.index(urlroot, journal)
 
 
 def list_revisions(name):
