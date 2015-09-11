@@ -188,9 +188,9 @@ def list_revisions(name):
     archive_pattern = re.compile('^%s\.(%s)(\.gz)?$' % (name, valid_revision_regex))
     # note: this will follow symlinks.
     archived_page_revisions = [int(archive_pattern.match(fname).group(1)) \
-                               for fname in os.listdir(script_dir + '/pages/archives/') \
+                               for fname in os.listdir(script_dir + '/archives/') \
                                if archive_pattern.match(fname) \
-                               and os.path.isfile(script_dir + '/pages/archives/%s' % fname)]
+                               and os.path.isfile(script_dir + '/archives/%s' % fname)]
     archived_page_revisions.sort()
     return archived_page_revisions
 
@@ -221,7 +221,7 @@ class Page:
         # first, save the current version of the page as an archive
         if os.path.isfile(script_dir + ('/pages/%s' % name)):
             next_suffix = str(find_next_revision(name))
-            archived_fullpath = script_dir + ('/pages/archives/%s.%s' % (name, next_suffix))
+            archived_fullpath = script_dir + ('/archives/%s.%s' % (name, next_suffix))
             os.rename(page_fullpath, archived_fullpath)
             run_or_die("gzip %s" % archived_fullpath)
 
@@ -285,7 +285,7 @@ class RecentPages:
 class ArchivedPage:
     def GET(self, name, revision):
         if session.logged_in == False: raise web.seeother('/authenticator')
-        archived_fullpath = script_dir + ('/pages/archives/%s.%s' % (name, revision))
+        archived_fullpath = script_dir + ('/archives/%s.%s' % (name, revision))
         gzipped_fullpath = archived_fullpath + '.gz'
 
         contents = None
@@ -303,7 +303,7 @@ class ArchivedPage:
 class RawArchivedPage:
     def GET(self, name, revision):
         if session.logged_in == False: raise web.seeother('/authenticator')
-        archived_fullpath = script_dir + ('/pages/archives/%s.%s' % (name, revision))
+        archived_fullpath = script_dir + ('/archives/%s.%s' % (name, revision))
         gzipped_fullpath = archived_fullpath + '.gz'
 
         contents = None
@@ -325,7 +325,7 @@ class ArchiveIndex:
         revisions.reverse()
         revision_times = []
         for revision in revisions:
-            archived_fullpath = script_dir + ('/pages/archives/%s.%s' % (name, revision))
+            archived_fullpath = script_dir + ('/archives/%s.%s' % (name, revision))
             gzipped_fullpath = archived_fullpath + '.gz'
             if os.path.isfile(archived_fullpath):
                 revision_time = time.asctime(time.localtime(os.stat(archived_fullpath).st_mtime))
