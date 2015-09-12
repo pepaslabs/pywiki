@@ -44,7 +44,17 @@ def bugout():
 
 def user_sanity_checks(i):
     MAX_USERNAME_LEN=64
-    if i.user is None or len(i.user) > MAX_USERNAME_LEN or not i.user.isalnum() or not getpass.getuser() == i.user:
+    if i.user is None \
+    or len(i.user) > MAX_USERNAME_LEN \
+    or not i.user.isalnum() \
+    or not getpass.getuser() == i.user:
+        bugout()
+
+def smscode_sanity_checks(i):
+    MAX_SMSCODE_LEN = 4
+    if i.smscode is None \
+    or len(i.smscode) > MAX_SMSCODE_LEN \
+    or not i.smscode.isalnum():
         bugout()
 
 def grant_access():
@@ -210,35 +220,6 @@ class SMSCodeRequestor:
 
 
 class SMSCodeAuthenticator:
-    def smscode_sanity_checks(self, i):
-        MAX_SMSCODE_LEN = 4
-        if i.smscode is None \
-        or len(i.smscode) > MAX_SMSCODE_LEN \
-        or not i.smscode.isalnum():
-            bugout()
-
-    def read_failcount_from_disk(self):
-        failcount = 0
-        if os.path.exists(ondisk_smscode_failcount_fpath) == True:
-            with open(ondisk_smscode_failcount_fpath, 'r') as fd:
-                failcount = int(fd.read().strip())
-        return failcount
-
-    def record_failcount_to_disk(self, failcount):
-        with open(ondisk_smscode_failcount_fpath, 'w') as fd:
-            fd.write("%s" % failcount)
-
-    def increment_failcount_and_unlink_if_needed(self):
-        # increment failed attempts count
-        # if failed attempts count is greater than max, delete the smscode (and the failcount)
-        failcount = self.read_failcount_from_disk()
-        failcount += 1
-
-        MAX_SMSCODE_FAILCOUNT = 3
-        if failcount >= MAX_SMSCODE_FAILCOUNT:
-            self.delete_ondisk_smscode()
-        else:
-            self.record_failcount_to_disk(failcount)
 
     def read_ondisk_smscode(self):
         ondisk_smscode = None
@@ -248,11 +229,8 @@ class SMSCodeAuthenticator:
         return ondisk_smscode
 
     def delete_ondisk_smscode(self):
-        if os.path.exists(ondisk_smscode_fpath): os.unlink(ondisk_smscode_fpath)
-        if os.path.exists(ondisk_smscode_failcount_fpath): os.unlink(ondisk_smscode_failcount_fpath)
-
-    def ensure_ondisk_smscode_failcount_is_deleted(self):
-        if os.path.exists(ondisk_smscode_failcount_fpath): os.unlink(ondisk_smscode_failcount_fpath)
+        if os.path.exists(ondisk_smscode_fpath):
+            os.unlink(ondisk_smscode_fpath)
 
     def GET(self):
         return renderer.smscodeauthenticator(urlroot)
@@ -263,40 +241,21 @@ class SMSCodeAuthenticator:
         # wait for our turn, then block any other requests while we are running
         lock.acquire()
         try:
-            # sanity-check the user input
             i = web.input()
             user_sanity_checks(i)
-            self.smscode_sanity_checks(i)
+            smscode_sanity_checks(i)
 
             if os.path.exists(ondisk_smscode_fpath):
-
-                # only allow an sms code to live for 30 seconds.
-                # we use a 16-bit sms code (64k possibilities), and you can make at most one request per 3 seconds.
-                # this means an attacker only gets 10 attempts to crack the sms code before it expires.
-                # so worst case an attacker's odds are 10 in 64k.
                 smscode_age = os.path.getmtime(ondisk_smscode_fpath)
-                if time.time() < (smscode_age + 30):
-                    # read the on-disk sms code
+                MAX_SMSCODE_AGE = 30
+                if time.time() < (smscode_age + MAX_SMSCODE_AGE):
                     ondisk_smscode = self.read_ondisk_smscode()
-
-                    # check if their code matches the on-disk code
                     if ondisk_smscode == i.smscode:
-                        # at this point they are authenticated
-                        # delete the on-disk sms code, and the failcount (if it exists)
                         is_authenticated = True
-                        self.delete_ondisk_smscode()
-                    else:
-                        self.increment_failcount_and_unlink_if_needed()
-                else:
-                    self.delete_ondisk_smscode()
-            else:
-                self.ensure_ondisk_smscode_failcount_is_deleted()
-                
-        # allow other request to proceed
+            self.delete_ondisk_smscode()                
+
         finally:
-            # yes, we already have sleep() calls elsewhere.  this one is insurance.
-            # it absolutely guarantees an attacker gets only 10 attempts during the 30 second window.
-            time.sleep(3)
+            # allow other request to proceed
             lock.release()
 
         # forward the user in or out of the wiki
