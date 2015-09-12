@@ -1,0 +1,17 @@
+$def with (urlroot)
+<html><head><title>SMS code requestor</title></head>
+<body onLoad="document.form.user.focus()">
+<form action="$(urlroot)/smscoderequestor" method="POST" name="form">
+    <table id="smscoderequestor">
+        <tr>
+            <td>User: </td>
+            <td><input type="text" name="user"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="request SMS code"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

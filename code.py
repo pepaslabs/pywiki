@@ -157,28 +157,28 @@ class SMSCodeRequestor:
         try:
             i = web.input()
             _input_sanity_checks(i)
-	    smscode = _generate_random_code()
-            _record_smscode(i.user, smscode)
-	    _send_smscode(i.user, smscode)
+	    smscode = self._generate_random_smscode()
+            self._record_smscode(i.user, smscode)
+	    self._send_smscode(i.user, smscode)
         finally:
             lock.release()
         raise web.seeother('/smsauthenticator')
 
-    def _generate_random_smscode():
+    def _generate_random_smscode(self):
 	code = binascii.b2a_hex(os.urandom(2))
         return code
 
-    def _record_smscode(user, smscode):
-        with fd as open(os.environ['HOME'] + '/.%s.smscode' % script_file, 'w'):
+    def _record_smscode(self, user, smscode):
+        with open(os.environ['HOME'] + '/.%s.smscode' % script_file, 'w') as fd:
             fd.write(smscode)
         
-    def _send_smscode(user, smscode):
-        email = _email_address_for_user(user)
-        command = 'echo %s | mail -s "SMS code" %s' % (smscode, user, email)
+    def _send_smscode(self, user, smscode):
+        email = self._email_address_for_user(user)
+        command = 'echo %s | mail -s "SMS code" %s' % (smscode, email)
         run_or_die(command)
 
-    def _email_address_for_user(user):
-        with fd as open(os.environ['HOME'] + '/.smsgateway' % script_file, 'r'):
+    def _email_address_for_user(self, user):
+        with open(os.environ['HOME'] + '/.smsgateway', 'r') as fd:
             return fd.read().strip()
 
 
