@@ -1,16 +1,15 @@
 $def with (urlroot)
-<!-- originally taken from http://webpy.org/cookbook/userauthpgsql -->
 <html><head><title>login</title></head>
 <body onLoad="document.form.user.focus()">
-<form action="$(urlroot)/otp" method="POST" name="form">
+<form action="$(urlroot)/smscodeauthenticator" method="POST" name="form">
     <table id="login">
         <tr>
             <td>User: </td>
             <td><input type="text" name="user"></td>
         </tr>
         <tr>
-            <td>Password: </td>
-            <td><input type="password" name="passwd"></td>
+            <td>SMS Code: </td>
+            <td><input type="text" name="smscode"></td>
         </tr>
         <tr>
             <td></td>
