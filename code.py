@@ -14,11 +14,16 @@ import string
 import time
 import cgi
 import re
-import mimetypes
-mimetypes.init()
 import commands
 import gzip
 import subprocess
+import binascii
+
+import mimetypes
+mimetypes.init()
+
+import threading
+lock = threading.Lock()
 
 
 (script_dir, script_file) = os.path.split(os.path.realpath(__file__))
@@ -40,6 +45,7 @@ urls = (
     '/', 'Index',
     '/authenticator', 'PamAuthenticator2',
     '/otpauthenticator', 'OtpAuthenticator',
+    '/smscoderequestor', 'SMSCodeRequestor',
     '/deauthenticator', 'Deauthenticator',
     '/upload/(%s)' % valid_upload_regex, 'Upload',
     '/uploader', 'Uploader',
@@ -113,7 +119,6 @@ class PamAuthenticator2:
             _bugout()
 
 
-
 class OtpAuthenticator:
     def GET(self):
         return renderer.otpauthenticator(urlroot)
@@ -128,7 +133,6 @@ class OtpAuthenticator:
             passwds.append(line.strip())
         current_passwd = passwds[0]
         try:
-            print "->%s<- == ->%s<-" % (current_passwd, i.passwd)
             assert current_passwd == i.passwd
         except:
             fcntl.flock(fd,fcntl.LOCK_UN)
@@ -142,6 +146,40 @@ class OtpAuthenticator:
             fcntl.flock(fd,fcntl.LOCK_UN)
             fd.close()
             _grant_access()
+
+
+class SMSCodeRequestor:
+    def GET(self):
+        return renderer.smscoderequestor(urlroot)
+
+    def POST(self):
+        lock.acquire()
+        try:
+            i = web.input()
+            _input_sanity_checks(i)
+	    smscode = _generate_random_code()
+            _record_smscode(i.user, smscode)
+	    _send_smscode(i.user, smscode)
+        finally:
+            lock.release()
+        raise web.seeother('/smsauthenticator')
+
+    def _generate_random_smscode():
+	code = binascii.b2a_hex(os.urandom(2))
+        return code
+
+    def _record_smscode(user, smscode):
+        with fd as open(os.environ['HOME'] + '/.%s.smscode' % script_file, 'w'):
+            fd.write(smscode)
+        
+    def _send_smscode(user, smscode):
+        email = _email_address_for_user(user)
+        command = 'echo %s | mail -s "SMS code" %s' % (smscode, user, email)
+        run_or_die(command)
+
+    def _email_address_for_user(user):
+        with fd as open(os.environ['HOME'] + '/.smsgateway' % script_file, 'r'):
+            return fd.read().strip()
 
 
 class Deauthenticator:
