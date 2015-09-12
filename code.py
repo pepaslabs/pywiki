@@ -215,6 +215,7 @@ class SMSCodeRequestor:
             self.record_smscode(i.user, smscode)
             self.send_smscode(i.user, smscode)
         finally:
+            time.sleep(3)
             lock.release()
         raise web.seeother('/smscodeauthenticator')
 
