@@ -81,7 +81,8 @@ def squash_unicode(text):
 
 def list_revisions(name):
     # note: this will follow symlinks.
-    archive_pattern = re.compile('^%s\.(%s)\.gz$' % (name, valid_revision_regex))
+    archive_regex = '^%s\.(%s)\.gz$' % (name, valid_revision_regex)
+    archive_pattern = re.compile(archive_regex)
     archived_page_revisions = [int(archive_pattern.match(fname).group(1)) \
                                for fname in os.listdir(archives_fpath) \
                                if archive_pattern.match(fname) \
@@ -89,7 +90,7 @@ def list_revisions(name):
     archived_page_revisions.sort()
     return archived_page_revisions
 
-def list_revision_mtimes(revisions):
+def list_revision_mtimes(name, revisions):
     revision_times = []
     for revision in revisions:
         gzipped_fullpath = archives_fpath + '%s.%s.gz' % (name, revision)
@@ -391,8 +392,9 @@ class ArchiveIndex:
     def GET(self, name):
         if session.logged_in == False: raise web.seeother('/authenticator')
 
-        revisions = list_revisions(name).reverse()
-        revision_times = list_revision_mtimes(revisions)
+        revisions = list_revisions(name)
+        revisions.reverse()
+        revision_times = list_revision_mtimes(name, revisions)
 
         if len(revisions) == 0:
             raise web.notfound()
