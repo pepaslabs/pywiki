@@ -8,14 +8,16 @@
 # a zero exit status indicates successful authentication.
 
 import sys
-import pam # debian users: apt-get install python-pampy
+
+import pam # pip install python-pam
+p = pam.pam()
 
 logged_in = False
 
 try:
     user = sys.argv[1]
     passwd = sys.stdin.read()
-    logged_in = pam.authenticate(user, passwd)
+    logged_in = p.authenticate(user, passwd)
 except Exception as e:
     sys.exit(2)
 else:

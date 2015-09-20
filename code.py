@@ -468,8 +468,10 @@ os.chdir(script_dir)
 
 # base the wiki name (and urlroot) off of the script dir name.
 wikiname = os.path.basename(script_dir)
-urlroot = '/%s' % wikiname
 web.template.Template.globals['wikititle'] = wikiname
+
+urlroot = '/%s' % wikiname
+if __name__ == "__main__": urlroot = ''
 
 links_baseurl = urlroot + '/page/'
 my_dialect = creoleparser.dialects.creole10_base(wiki_links_base_url=(links_baseurl))
@@ -529,3 +531,6 @@ otp_fpath = os.environ['HOME'] + '/.otp'
 ondisk_smscode_fpath = os.environ['HOME'] + '/.%s.smscode' % wikiname
 ondisk_smscode_failcount_fpath = os.environ['HOME'] + '/.%s.smscode.failcount' % wikiname
 
+
+if __name__ == "__main__":
+    app.run()
