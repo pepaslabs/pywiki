@@ -249,7 +249,7 @@ class SMSCodeAuthenticator:
 
             if os.path.exists(ondisk_smscode_fpath):
                 smscode_age = os.path.getmtime(ondisk_smscode_fpath)
-                MAX_SMSCODE_AGE = 30
+                MAX_SMSCODE_AGE = 60
                 if time.time() < (smscode_age + MAX_SMSCODE_AGE):
                     ondisk_smscode = self.read_ondisk_smscode()
                     if ondisk_smscode == i.smscode:
