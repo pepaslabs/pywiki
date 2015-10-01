@@ -425,7 +425,7 @@ class Uploader:
         if len(filename) == 0:
             raise web.badrequest()
         open(uploads_fpath + filename, 'w').write(x['myfile'].value)
-        raise web.seeother('/uploads/recent')
+        raise web.seeother('/upload/' + filename)
 
 
 class Upload:
