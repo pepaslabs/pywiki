@@ -18,6 +18,7 @@ import binascii
 import getpass
 import threading
 import re
+import unidecode
 
 import mimetypes
 mimetypes.init()
@@ -62,22 +63,7 @@ def grant_access():
     raise web.seeother('/')
 
 def squash_unicode(text):
-    # based on http://collective-docs.plone.org/troubleshooting/unicode.html
-    # useful links:
-    # http://en.wikipedia.org/wiki/List_of_Unicode_characters
-    # http://www.utf8-chartable.de/unicode-utf8-table.pl?number=512&names=-&utf8=string-literal
-    text = text.replace(u'\u00a0',' ') # non-breaking space.  this will show up as hex c2a0.
-    text = text.replace(u'\u2019','\'') # right single quote.
-    text = text.replace(u'\u2013','-') # "EN DASH".  just use a fucking dash already.  sheesh.
-    text = text.replace(u'\u02C7','?') # caron.  this will show up as hex cb87.
-    text = text.replace(u'\u00e8','e') # 'LATIN SMALL LETTER E WITH GRAVE'
-    text = text.replace(u'\u00e9','e') # 'LATIN SMALL LETTER E WITH ACUTE' (U+00E9)"
-    text = text.replace(u'\u00e1','a') # 'LATIN SMALL LETTER A WITH ACUTE' (U+00E1)"
-    text = text.replace(u'\u00f3','o') # 'LATIN SMALL LETTER O WITH ACUTE' (U+00F3)"
-    text = text.replace(u'\u201c','"') # 'LEFT DOUBLE QUOTATION MARK' (U+201C)
-    text = text.replace(u'\u201d','"') # 'RIGHT DOUBLE QUOTATION MARK' (U+201D)
-
-    return text
+    return unidecode.unidecode(text)
 
 def list_revisions(name):
     # note: this will follow symlinks.
