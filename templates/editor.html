@@ -10,32 +10,20 @@ $def with (urlroot, name, textarea_content)
 <p>
 <a href="http://www.wikicreole.org/wiki/CheatSheet">Creole Syntax</a>:</p>
 <pre>
-== Large heading ==               Horizontal line:
-=== Medium heading ===            ----
+= H1 heading =              Horizontal rule:        {{{
+== Large heading ==         ----                    unformatted text
+=== Medium heading ===                              }}}
 ==== Small heading ====
 
-[[WikiLink]]                      [[URL|link name]]
+[[WikiLink]]                [[URL|link name]]       {{Image.jpg|title}}
 
-{{{
-unformatted text
-}}}
+* Bullet list               # Numbered list         |=|=table|=header|
+** Sub item                 ## Sub item             |a|table|row|
+                                                    |b|table|row|
 
-* Bullet list                     # Numbered list
-** Sub item                       ## Sub item
+//italics//                 **bold**                ~~tilde         forced\\linebreak
 
-{{Image.jpg|title}}
-
-|=|=table|=header|
-|a|table|row|
-|b|table|row|
-
-//italics//                       **bold**
-
-Forced\\linebreak
-
-dealing with uploads:
-{{/$(wikititle)/upload/foo.jpg}}
-[[/$(wikititle)/upload/foo.pdf]]
+Inline upload: {{/$(wikititle)/upload/foo.jpg}}     Linked upload: [[/$(wikititle)/upload/foo.pdf]]
 </pre>
 </p>
 <p>
