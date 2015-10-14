@@ -183,7 +183,7 @@ class SMSCodeRequestor:
         
     def send_smscode(self, user, smscode):
         email = self.email_address_for_user(user)
-        command = 'echo %s | mail -s "SMS code" %s' % (smscode, email)
+        command = 'echo %s | mail -s "%s" %s' % (smscode, smscode, email)
         run_or_die(command)
 
     def email_address_for_user(self, user):
