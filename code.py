@@ -367,7 +367,12 @@ class Uploader:
         if len(filename) == 0:
             raise web.badrequest()
         open(uploads_fpath + filename, 'w').write(x['myfile'].value)
-        raise web.seeother('/upload/' + filename)
+
+        mimetype = mimetypes.guess_type(filename)[0]
+        if mimetype in ['image/jpeg', 'image/png', 'image/gif']:
+            raise web.seeother('/upload/' + filename)
+        else:
+            raise web.seeother('/uploads/recent')
 
 
 class Upload:
