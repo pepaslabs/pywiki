@@ -105,23 +105,6 @@ def read_archived_page(name, revision):
         contents = gzip.open(gzipped_fullpath).read()
     return contents
 
-def read_otp_passwords():
-    passwds = []
-    if os.path.exists(otp_fpath):
-        with open(otp_fpath, 'r') as fd:
-            for line in fd.readlines():
-                passwds.append(line.strip())
-    return passwds
-
-def write_otp_passwords(passwords):
-    if len(passwords) == 0:
-        if os.path.exists(otp_fpath):
-            os.unlink(otp_fpath)
-    else:
-        with open(otp_fpath, 'w') as fd:
-            for passwd in passwords:
-                fd.write('%s\n' % passwd)
-
 
 class PamAuthenticator2:
     def GET(self):
@@ -140,33 +123,6 @@ class PamAuthenticator2:
         exit_status = p.returncode
 
         if exit_status == 0:
-            grant_access()
-        else:
-            bugout()
-
-
-class OtpAuthenticator:
-    def GET(self):
-        return renderer.otpauthenticator(urlroot)
-
-    def POST(self):
-        i = web.input()
-        user_sanity_checks(i)
-
-        is_authenticated = False
-
-        lock.acquire()
-        try:
-            passwds = read_otp_passwords()
-            if len(passwds) > 0:
-                current_passwd = passwds[0]
-                if current_passwd == i.passwd:
-                    is_authenticated = True
-                    write_otp_passwords(passwds[1:])
-        finally:
-            lock.release()
-
-        if is_authenticated == True:
             grant_access()
         else:
             bugout()
@@ -475,7 +431,6 @@ valid_upload_regex = '[a-zA-Z0-9_.-]+'
 urls = (
     '/', 'Index',
     '/authenticator', 'PamAuthenticator2',
-    '/otp', 'OtpAuthenticator',
     '/sms', 'SMSCodeRequestor',
     '/smscodeauthenticator', 'SMSCodeAuthenticator',
     '/deauthenticator', 'Deauthenticator',
@@ -513,7 +468,6 @@ pages_fpath = script_dir + '/pages/'
 archives_fpath = script_dir + '/archives/'
 uploads_fpath = script_dir + '/uploads/'
 smsgateway_fpath = os.environ['HOME'] + '/.smsgateway'
-otp_fpath = os.environ['HOME'] + '/.otp'
 ondisk_smscode_fpath = os.environ['HOME'] + '/.%s.smscode' % wikiname
 ondisk_smscode_failcount_fpath = os.environ['HOME'] + '/.%s.smscode.failcount' % wikiname
 
