@@ -118,7 +118,7 @@ class PamAuthenticator2:
         # breaking the pam code out into its own script as a work-around.
         # see https://twitter.com/cellularmitosis/status/641382629393043456
         cmd_fpath = '%s/pam_authenticate.py' % script_dir
-        p = subprocess.Popen([cmd_fpath, i.user], stdin=subprocess.PIPE)
+        p = subprocess.Popen([cmd_fpath, i.user.lower()], stdin=subprocess.PIPE)
         p.communicate(i.passwd)
         exit_status = p.returncode
 
@@ -155,8 +155,8 @@ class SMSCodeRequestor:
             i = web.input()
             user_sanity_checks(i)
             smscode = self.generate_random_smscode()
-            self.record_smscode(i.user, smscode)
-            self.send_smscode(i.user, smscode)
+            self.record_smscode(i.user.lower(), smscode)
+            self.send_smscode(i.user.lower(), smscode)
         finally:
             time.sleep(3)
             lock.release()
