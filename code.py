@@ -474,7 +474,6 @@ archives_fpath = script_dir + '/archives/'
 uploads_fpath = script_dir + '/uploads/'
 smsgateway_fpath = os.environ['HOME'] + '/.smsgateway'
 ondisk_smscode_fpath = os.environ['HOME'] + '/.%s.smscode' % wikiname
-ondisk_smscode_failcount_fpath = os.environ['HOME'] + '/.%s.smscode.failcount' % wikiname
 
 
 if __name__ == "__main__":
