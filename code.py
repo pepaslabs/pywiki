@@ -48,7 +48,7 @@ def user_sanity_checks(i):
     if i.user is None \
     or len(i.user) > MAX_USERNAME_LEN \
     or not i.user.isalnum() \
-    or not getpass.getuser() == i.user:
+    or not getpass.getuser() == i.user.lower():
         bugout()
 
 def smscode_sanity_checks(i):
@@ -194,7 +194,7 @@ class SMSCodeAuthenticator:
                 MAX_SMSCODE_AGE = 60
                 if time.time() < (smscode_age + MAX_SMSCODE_AGE):
                     ondisk_smscode = self.read_ondisk_smscode()
-                    if ondisk_smscode == i.smscode:
+                    if ondisk_smscode == i.smscode.lower():
                         is_authenticated = True
             self.delete_ondisk_smscode()                
 
