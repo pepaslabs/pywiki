@@ -1,6 +1,10 @@
 $def with (urlroot)
 <!-- originally taken from http://webpy.org/cookbook/fileupload -->
-<html><head><title>uploader</title></head>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="$(urlroot)/static/default.css" />
+<title>uploader</title>
+</head>
 <body>
 <form action="$(urlroot)/uploader" method="POST" name="form" enctype="multipart/form-data">
 <input type="file" name="myfile" /><br>

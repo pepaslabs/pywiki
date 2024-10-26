@@ -1,5 +1,9 @@
 $def with (urlroot)
-<html><head><title>login</title></head>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="$(urlroot)/static/default.css" />
+<title>login</title>
+</head>
 <body onLoad="document.form.user.focus()">
 <form action="$(urlroot)/smscodeauthenticator" method="POST" name="form">
     <table id="login">

@@ -4,20 +4,20 @@
 # copyright 2010 by jason pepas (jasonpepas@gmail.com)
 # see https://github.com/pepaslabs/pywiki
 
-import sys
-import os
-import hashlib
-import fcntl
-import string
-import time
+import binascii
 import cgi
 import commands
-import gzip
-import subprocess
-import binascii
+import fcntl
 import getpass
-import threading
+import gzip
+import hashlib
+import os
 import re
+import string
+import subprocess
+import sys
+import threading
+import time
 import unidecode
 
 import mimetypes
@@ -37,11 +37,13 @@ def run_or_die(command):
         raise Exception("command '%s' failed with exit status %d and output '%s'" % (command, status, stdio))
     return stdio
 
+
 def bugout():
     session.logged_in = False
     session.kill()
     time.sleep(3)
     raise web.unauthorized()
+
 
 def user_sanity_checks(i):
     MAX_USERNAME_LEN=64
@@ -51,6 +53,7 @@ def user_sanity_checks(i):
     or not getpass.getuser() == i.user.lower():
         bugout()
 
+
 def smscode_sanity_checks(i):
     MAX_SMSCODE_LEN = 4
     if i.smscode is None \
@@ -58,14 +61,66 @@ def smscode_sanity_checks(i):
     or not i.smscode.isalnum():
         bugout()
 
+
 def grant_access():
     session.logged_in = True
     raise web.seeother('/')
 
+
 def squash_unicode(text):
     return unidecode.unidecode(text)
 
+
+class WikiPageStore(object):
+    def __init__(self, script_dir):
+        self.pages_fpath = script_dir + '/pages/'
+        self.archives_fpath = script_dir + '/archives/'
+
+
+    def list_revisions(self, page_name):
+        # note: this will follow symlinks.
+        valid_revision_regex = r"[0-9]+"
+        archive_regex = r"%s.(%s).gz" % (page_name, valid_revision_regex)
+        archive_pattern = re.compile("^%s$" % archive_regex)
+        archived_page_revisions = [int(archive_pattern.match(fname).group(1)) \
+                                   for fname in os.listdir(self.archives_fpath) \
+                                   if archive_pattern.match(fname) \
+                                       and os.path.isfile(self.archives_fpath + fname)]
+        archived_page_revisions.sort()
+        return archived_page_revisions
+
+
+    def list_revision_mtimes(self, page_name, revisions):
+        revision_times = []
+        for revision in revisions:
+            gzipped_fullpath = self.archives_fpath + '%s.%s.gz' % (page_name, revision)
+            if os.path.isfile(gzipped_fullpath):
+                revision_time = time.asctime(time.localtime(os.stat(gzipped_fullpath).st_mtime))
+                revision_times.append(revision_time)
+        return revision_times
+
+
+    def find_next_revision(self, page_name):
+        revisions = self.list_revisions(page_name)
+        next_revision = 0
+        if len(revisions) > 0:
+            next_revision = revisions[-1] + 1
+        return next_revision
+
+
+    def read_archived_page(self, page_name, revision):
+        fname = '%s.%s.gz' % (page_name, revision)
+        gzipped_fullpath = self.archives_fpath + fname
+
+        contents = None
+        if os.path.isfile(gzipped_fullpath):
+            with gzip.open(gzipped_fullpath) as fd:
+                contents = fd.read()
+        return contents
+
+
 def list_revisions(name):
+    # DEPRECATED
     # note: this will follow symlinks.
     archive_regex = '^%s\.(%s)\.gz$' % (name, valid_revision_regex)
     archive_pattern = re.compile(archive_regex)
@@ -76,7 +131,9 @@ def list_revisions(name):
     archived_page_revisions.sort()
     return archived_page_revisions
 
+
 def list_revision_mtimes(name, revisions):
+    # DEPRECATED
     revision_times = []
     for revision in revisions:
         gzipped_fullpath = archives_fpath + '%s.%s.gz' % (name, revision)
@@ -85,18 +142,23 @@ def list_revision_mtimes(name, revisions):
             revision_times.append(revision_time)
     return revision_times
 
+
 def find_next_revision(name):
+    # DEPRECATED
     revisions = list_revisions(name)
     next_revision = 0
     if len(revisions) > 0:
         next_revision = revisions[-1] + 1
     return next_revision
 
+
 def uploads_fpaths():
     return [fname for fname in os.listdir(uploads_fpath) \
             if os.path.isfile(uploads_fpath + fname) and not os.path.islink(uploads_fpath + fname)]
 
+
 def read_archived_page(name, revision):
+    # DEPRECATED
     fname = '%s.%s.gz' % (name, revision)
     gzipped_fullpath = archives_fpath + fname
 
@@ -104,6 +166,28 @@ def read_archived_page(name, revision):
     if os.path.isfile(gzipped_fullpath):
         contents = gzip.open(gzipped_fullpath).read()
     return contents
+
+
+def render_to_html(raw_content):
+    """Renders the source format to HTML.
+
+    Supports Creole and Markdown.  Creole is assumed by default.
+    Markdown must be requested via a '#markdown' shebang.
+    """
+    assume_creole = True
+    if raw_content.startswith("#markdown"):
+        assume_creole = False
+        raw_content = raw_content[len("#markdown"):]
+
+    if assume_creole:
+        return my_creoleparser(raw_content)
+    else:
+        cmd_fpath = '%s/marked' % script_dir
+        p = subprocess.Popen([cmd_fpath], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        std_output, error_output = p.communicate(raw_content)
+        exit_code = p.wait()
+        assert exit_code == 0, error_output
+        return std_output
 
 
 class PamAuthenticator2:
@@ -230,10 +314,13 @@ class Page:
         if session.logged_in == False: raise web.seeother('/authenticator')
 
         if os.path.isfile(script_dir + '/pages/%s' % name):
-            content = my_creoleparser(open(script_dir + '/pages/%s' % name).read())
+            fpath = script_dir + '/pages/%s' % name
+            with open(fpath, 'r') as fd:
+                raw_content = fd.read()
+            html = render_to_html(raw_content)
             mtime = os.stat(script_dir + ('/pages/%s' % name)).st_mtime
             mtime = time.asctime(time.localtime(mtime))
-            return renderer.page(urlroot, name, content, mtime)
+            return renderer.page(urlroot, name, html, mtime)
         else:
             raise web.notfound(renderer.page404(urlroot, name))
 
@@ -310,11 +397,11 @@ class ArchivedPage:
     def GET(self, name, revision):
         if session.logged_in == False: raise web.seeother('/authenticator')
 
-        contents = read_archived_page(name, revision)
-        if contents is None:
+        raw_content = read_archived_page(name, revision)
+        if raw_content is None:
             raise web.notfound()
 
-        html = my_creoleparser(contents)
+        html = render_to_html(raw_content)
         return renderer.archive(urlroot, name, revision, html)
 
 

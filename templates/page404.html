@@ -1,5 +1,9 @@
 $def with (urlroot, name)
-<html><head><title>$name not found</title></head>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="$(urlroot)/static/default.css" />
+<title>$name not found</title>
+</head>
 <body>
 <p>Page $name does not yet exist - <a href="$(urlroot)/editor/$name">Create</a></p>
 <p>

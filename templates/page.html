@@ -1,11 +1,14 @@
 $def with (urlroot, name, content, mtime)
 <html>
 <head>
-<link rel="stylesheet" type="text/css" href="$(urlroot)/static/pre.css" />
+<link rel="stylesheet" type="text/css" href="$(urlroot)/static/default.css" />
 <title>$name</title>
 </head>
 <body>
 <h1><a href="$(urlroot)/">$wikititle</a> -&gt; $name</h1>
+[<a href="$(urlroot)/editor/$name">edit</a>] [<a href="$(urlroot)/rawpage/$name">raw</a>] [<a href="$(urlroot)/archive/page/$name">archive</a>]<br>
+<hr>
+
 $:content
 
 <hr>
